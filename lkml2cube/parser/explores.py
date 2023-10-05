@@ -56,7 +56,7 @@ def traverse_graph(join_paths, cube_left, cube_right):
                     queue.append(new_path)
 
     typer.echo(f'Cubes are not reachable: {cube_left}, {cube_right}')
-    return '.'.join(cube_left, cube_right)
+    return '.'.join([cube_left, cube_right])
 
 
 def generate_cube_joins(cube_def, lookml_model):
@@ -82,14 +82,15 @@ def generate_cube_joins(cube_def, lookml_model):
 
                     join_condition = join_element['sql_on']
 
-                    if 'joins' not in cube:
-                        cube['joins'] = []
+                    if cube:
+                        if 'joins' not in cube:
+                            cube['joins'] = []
 
-                    cube['joins'].append({
-                        'name': joined_cubes[0],
-                        'sql': join_condition,
-                        'relationship': join_element['relationship']
-                    })
+                        cube['joins'].append({
+                            'name': joined_cubes[0],
+                            'sql': join_condition,
+                            'relationship': join_element['relationship']
+                        })
             except Exception:
                 typer.echo(f'Error while parsing explore: {pformat(explore)}')
                 typer.echo(traceback.format_exc())
@@ -101,11 +102,13 @@ def generate_cube_views(cube_def, lookml_model):
         cube_def['views'] = []
     for explore in lookml_model['explores']:
         try:
-            central_cube = explore['name']
-            view_name = snakify(explore['label'])
+            central_cube = explore.get('view_label', explore['name'])
+            # strip, lower, replace spaces with _
+            central_cube = central_cube.replace(' ', '_').lower().strip()
+            view_name = snakify(explore['view_label'])
             view = {
                 'name': view_name,
-                'description': explore['label'],
+                'description': explore['view_label'],
                 'cubes': [{
                     'join_path': central_cube,
                     'includes': "*",
