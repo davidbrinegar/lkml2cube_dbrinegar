@@ -3,7 +3,7 @@ import lkml
 import typer
 import yaml
 
-from os.path import abspath, dirname, join
+from os.path import abspath, dirname, join, isdir
 from pathlib import Path
 
 visited_path = {}
@@ -27,11 +27,14 @@ def update_namespace(namespace, new_file):
 
 def file_loader(file_path_input, namespace=None):
 
-    file_paths = glob.glob(file_path_input)
+    file_paths = glob.glob(file_path_input, recursive=True)
     for file_path in file_paths:
         if file_path in visited_path:
             continue
         visited_path[file_path] = True
+        if isdir(file_path):
+            typer.echo(f'ignoring isDir file_path in glob pattern:{file_path}')
+            continue
         lookml_model = lkml.load(open(file_path, 'r'))
         if 'includes' in lookml_model:
             for included_path in lookml_model['includes']:
