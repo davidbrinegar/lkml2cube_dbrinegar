@@ -26,6 +26,8 @@ def parse_view(lookml_model, raise_when_views_not_present=True):
         'time': 'time',
         'date_time': 'time',
         'count_distinct': 'count_distinct_approx',
+        'min': 'min',
+        'max': 'max'
     }
     sets = {}
     
