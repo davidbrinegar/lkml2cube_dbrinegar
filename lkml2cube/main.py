@@ -62,14 +62,18 @@ def cubes(
     
     cube_def = parse_view(lookml_model)
     cube_def = generate_cube_joins(cube_def, lookml_model)
-    
+    yaml.add_representer(str, str_presenter)
     if printonly:
-        typer.echo(yaml.dump(cube_def))
+        typer.echo(yaml.dump(cube_def, sort_keys=False))
         return
     
     write_files(cube_def, outputdir=outputdir)
-    
 
+#get multi-line sql query with yaml fold    
+def str_presenter(dumper, data):
+  if len(data.splitlines()) > 1:  # check for multiline string
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='>')
+  return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
 @app.command()
 def views(
