@@ -114,6 +114,8 @@ def parse_view(lookml_model, raise_when_views_not_present=True):
                     'name': measure['name'],
                     'type': type_map[measure['type']]
                 }
+                if 'label' in measure:
+                    cube_measure['title'] =  measure['label']
                 if measure['type'] != 'count':
                     cube_measure['sql'] = rpl_table(measure['sql'])
                 elif 'drill_fields' in measure:
