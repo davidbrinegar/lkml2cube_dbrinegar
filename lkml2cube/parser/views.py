@@ -24,7 +24,10 @@ def parse_view(lookml_model, raise_when_views_not_present=True):
         'average_distinct': 'avg',
         'date': 'time',
         'time': 'time',
+        'date_time': 'time',
         'count_distinct': 'count_distinct_approx',
+        'min': 'min',
+        'max': 'max'
     }
     sets = {}
     
@@ -66,8 +69,12 @@ def parse_view(lookml_model, raise_when_views_not_present=True):
                 cube_dimension = {
                     'name': dimension['name'],
                     'sql': rpl_table(dimension['sql']),
-                    'type': type_map[dimension['type']]
+                    'type': type_map[dimension['type']] 
                 }
+                if 'label' in dimension:
+                    cube_dimension['title'] =  dimension['label']
+                if 'description' in dimension:
+                    cube_dimension['description'] =  dimension['description']
                 if dimension['type'] == 'tier':
                     bins = dimension['bins']
                     if len(bins) < 2:
@@ -87,7 +94,7 @@ def parse_view(lookml_model, raise_when_views_not_present=True):
                         'sql': rpl_table(dimension['sql']),
                         'type': type_map[dimension['type']]
                     }
-                    if 'type' not in dimension:
+                    if 'type' not in dimension or dimension['type'] not in type_map:
                         raise Exception(f'Dimension type: {dimension["type"]} not implemented yet:\n {dimension}')
                     cube['dimensions'].append(cube_dimension)
 
@@ -107,6 +114,8 @@ def parse_view(lookml_model, raise_when_views_not_present=True):
                     'name': measure['name'],
                     'type': type_map[measure['type']]
                 }
+                if 'label' in measure:
+                    cube_measure['title'] =  measure['label']
                 if measure['type'] != 'count':
                     cube_measure['sql'] = rpl_table(measure['sql'])
                 elif 'drill_fields' in measure:

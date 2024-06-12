@@ -160,6 +160,8 @@ cython_debug/
 #.idea/
 .pdm-python
 
+#vscode
+.vscode
 
 # default location to write files
 cubes/
